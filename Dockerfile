@@ -24,6 +24,23 @@ COPY .ssh/authorized_keys /home/jenkins/.ssh/authorized_keys
 
 RUN chown -R jenkins:jenkins /home/jenkins/.m2/ && \
     chown -R jenkins:jenkins /home/jenkins/.ssh/
+    
+# Install the magic wrapper.
+ADD ./wrapdocker /usr/local/bin/wrapdocker
+
+# Install Docker and dependencies
+RUN apk --update add \
+  bash \
+  iptables \
+  ca-certificates \
+  e2fsprogs \
+  docker \
+  && chmod +x /usr/local/bin/wrapdocker \
+  && rm -rf /var/cache/apk/*
+
+# Define additional metadata for our image.
+VOLUME /var/lib/docker
+CMD ["wrapdocker"]
 
 # Standard SSH port
 EXPOSE 22
